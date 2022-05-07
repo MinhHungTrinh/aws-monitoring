@@ -2,39 +2,28 @@
 Policy:
 
 ```
-{ 
-
-  "Version": "2012-10-17", 
-
-  "Statement": [ 
-
-    { 
-
-      "Sid": "CustomCloudwatchPolicy", 
-
-      "Effect": "Allow", 
-
-      "Action": [ 
-
-        "cloudwatch:PutMetricData", 
-
-        "cloudwatch:GetMetricStatistics", 
-
-        "cloudwatch:ListMetrics" 
-
-      ], 
-
-      "Resource": "*" 
-
-    } 
-
-  ] 
-
-} 
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogStreams"
+    ],
+      "Resource": [
+        "arn:aws:logs:*:*:*"
+    ]
+  }
+ ]
+}
 ```
+### EC2 User data
 
-### EC2 User Data
 OS: Ubuntu
+
 ```
 #!/bin/bash 
  
@@ -72,7 +61,22 @@ sudo tee -a /opt/aws/amazon-cloudwatch-agent/bin/config.json << EOF
             ] 
          } 
       } 
-   }
+   }, 
+   "logs":{ 
+      "logs_collected":{ 
+         "files":{ 
+            "collect_list":[ 
+               { 
+                 "file_path": "/home/ubuntu/app/logs/laravel*", 
+                 "log_group_name": "/api", 
+                 "log_stream_name": "{instance_id}",
+                 "timestamp_format": "%d/%b/%Y:%H:%M:%S %z",
+                 "timezone": "Local"
+               } 
+            ] 
+         } 
+      } 
+   } 
 } 
 EOF 
  
